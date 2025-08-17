@@ -7,10 +7,18 @@ import "./styles.css";
 function App() {
   const [recipes, setRecipes] = useState([]);
 
+  // Get API base URL for different environments
+  const getApiBaseUrl = () => {
+    if (process.env.NODE_ENV === 'production') {
+      return '/api'; // For Vercel production
+    }
+    return 'http://localhost:5000/api'; // For local development
+  };
+
   // Fetch all recipes from backend
   const fetchRecipes = async () => {
     try {
-      const res = await fetch("http://localhost:5000/recipes");
+      const res = await fetch(`${getApiBaseUrl()}/recipes`);
       const data = await res.json();
       setRecipes(data || []);
     } catch (err) {
@@ -26,7 +34,7 @@ function App() {
   // Add recipe
   const addRecipe = async (recipe) => {
     try {
-      await fetch("http://localhost:5000/recipes", {
+      await fetch(`${getApiBaseUrl()}/recipes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(recipe),
@@ -40,7 +48,7 @@ function App() {
   // Like recipe
   const likeRecipe = async (id) => {
     try {
-      await fetch(`http://localhost:5000/recipes/${id}/like`, { method: "POST" });
+      await fetch(`${getApiBaseUrl()}/recipes/${id}/like`, { method: "POST" });
       fetchRecipes();
     } catch (err) {
       console.error(err);
@@ -50,7 +58,7 @@ function App() {
   // Comment recipe
   const commentRecipe = async (id, comment) => {
     try {
-      await fetch(`http://localhost:5000/recipes/${id}/comment`, {
+      await fetch(`${getApiBaseUrl()}/recipes/${id}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ comment }),
@@ -68,7 +76,7 @@ function App() {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5000/recipes/search/${query}`);
+      const res = await fetch(`${getApiBaseUrl()}/recipes/search/${query}`);
       const data = await res.json();
       setRecipes(data || []);
     } catch (err) {

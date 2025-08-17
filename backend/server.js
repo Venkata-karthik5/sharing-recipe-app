@@ -12,14 +12,13 @@ app.use(cors());
 app.use(express.json());
 
 // 4️⃣ Connect to MongoDB Atlas
-mongoose.connect(
-  "mongodb+srv://AchyuthSai:Achyuth%40123@recipedb.lqb3ysy.mongodb.net/recipeDB?retryWrites=true&w=majority",
-  { 
-    dbName: "recipeDB",
-    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-    socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-  }
-)
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://AchyuthSai:Achyuth%40123@recipedb.lqb3ysy.mongodb.net/recipeDB?retryWrites=true&w=majority";
+
+mongoose.connect(MONGODB_URI, { 
+  dbName: "recipeDB",
+  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+})
 .then(() => console.log("✅ MongoDB Atlas connected"))
 .catch(err => {
   console.error("⚠️ MongoDB connection error:", err.message);
@@ -28,11 +27,25 @@ mongoose.connect(
 });
 
 // 5️⃣ Routes
-app.use("/recipes", recipeRoutes);
+app.use("/api/recipes", recipeRoutes);
 
-// 6️⃣ Start server
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-  console.log(`📝 API endpoints available at http://localhost:${PORT}/recipes`);
+// Health check endpoint for Vercel
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "healthy", 
+    timestamp: new Date().toISOString(),
+    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+  });
 });
+
+// 6️⃣ Start server (only if not on Vercel)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`✅ Server running on http://localhost:${PORT}`);
+    console.log(`📝 API endpoints available at http://localhost:${PORT}/api/recipes`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;
