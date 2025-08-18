@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: recipe-sharing-app
+    env: node
+    plan: free
+    buildCommand: npm run install:all && npm run build:frontend
+    startCommand: node backend/server.js
+    autoDeploy: true
+    envVars:
+      - key: MONGODB_URI
+        sync: false # Set this in Render Dashboard
+
