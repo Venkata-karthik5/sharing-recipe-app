@@ -5,6 +5,7 @@ services:
     plan: free
     buildCommand: npm run install:all && npm run build:frontend
     startCommand: node backend/server.js
+    healthCheckPath: /api/health
     autoDeploy: true
     envVars:
       - key: MONGODB_URI
