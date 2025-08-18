@@ -1,7 +1,7 @@
 services:
   - type: web
     name: recipe-sharing-app
-    env: node
+    runtime: node
     plan: free
     buildCommand: npm run install:all && npm run build:frontend
     startCommand: node backend/server.js
